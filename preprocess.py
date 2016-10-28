@@ -1,8 +1,9 @@
 import glob
-from random import shuffle
-from scipy import ndimage
 import numpy as np
 from scipy import misc
+from scipy import ndimage
+from random import shuffle
+
 
 # function to generate list of subdirectories
 def get_sub_dirs(path):
@@ -64,7 +65,7 @@ def generate_image_tensors(image_list,re_h,re_w):
     return image_tensors
 
 
-# Function to gen one hot lable tensors
+# Function to generate one hot label tensors
 def gen_one_hot_lable_tensors(num_classes,label_list):
     label_tensors = np.ndarray(shape=(len(label_list),num_classes), dtype=np.float32)
     l = [0.0] * num_classes
@@ -73,3 +74,21 @@ def gen_one_hot_lable_tensors(num_classes,label_list):
         one_hot[label_list[i]]=1.0
         label_tensors[i,:] = one_hot
     return label_tensors
+
+
+# Function to generate all images and label tensors and serialize in .npy files
+def gen_and_serialize(path,re_h,re_w):
+    sub_dirs = get_sub_dirs(path)
+    all_image_list, all_label_list = get_all_images_lables_list(sub_dirs)
+    shuf_image_list, shuf_label_list = random_shufle(all_image_list, all_label_list)
+    train_image_list,train_label_list,test_image_list,test_label_list = split_data(shuf_image_list, shuf_label_list)
+    train_images_tensor = generate_image_tensors(train_image_list,re_h,re_w)
+    train_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs),train_label_list)
+    test_images_tensor = generate_image_tensors(test_image_list, re_h, re_w)
+    test_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs), test_label_list)
+    np.save('train_images.npy',train_images_tensor)
+    np.save('test_images.npy', test_images_tensor)
+    np.save('train_labels.npy',train_label_tensor)
+    np.save('test_labels.npy', test_label_tensor)
+
+
