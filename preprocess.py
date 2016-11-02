@@ -16,9 +16,9 @@ def get_all_images_lables_list(sub_dirs):
     label=0
     for sub in sub_dirs:
         sub_list = glob.glob(sub+"*")
-        lablel_list = [label]*len(sub_list)
-        all_lables.append(lablel_list)
-        all_images_list.append(sub_list)
+        label_list = [label]*len(sub_list)
+        all_lables += label_list
+        all_images_list += sub_list
         label+=1
     return all_images_list,all_lables
 
@@ -37,19 +37,19 @@ def random_shufle(image_list,lables_list):
 
 # Function to split train and test data (split is 80:20)
 def split_data(image_list,label_list):
-    len = len(image_list)
-    split = len*80/100
+    length = len(image_list)
+    split = length*80/100
     train_images_list = image_list[0:split]
     train_label_list = label_list[0:split]
-    test_images_list = image_list[split:len]
-    test_label_list = label_list[split:len]
+    test_images_list = image_list[split:length]
+    test_label_list = label_list[split:length]
     return train_images_list,train_label_list,test_images_list,test_label_list
 
 
 # Function to read and normlize images
 def read_image_data(img_path,re_h,re_w):
     tensor = np.ndarray(shape=(re_h, re_w), dtype=np.float32)
-    im = ndimage.imread(img_path, flatten=False).astype(float)
+    im = ndimage.imread(img_path, flatten=True).astype(float)
     im = misc.imresize(im, (re_h, re_w))
     image_data = (im - 255.0 / 2) / 255.0
     tensor[:, :] = image_data
@@ -58,9 +58,9 @@ def read_image_data(img_path,re_h,re_w):
 
 # Function to generate image tensors
 def generate_image_tensors(image_list,re_h,re_w):
-    len = len(image_list)
-    image_tensors = np.ndarray(shape=(len,re_h, re_w), dtype=np.float32)
-    for i in range(len):
+    length = len(image_list)
+    image_tensors = np.ndarray(shape=(length,re_h, re_w), dtype=np.float32)
+    for i in range(length):
         image_tensors[i,:,:] = read_image_data(image_list[i],re_h,re_w)
     return image_tensors
 
@@ -86,9 +86,11 @@ def gen_and_serialize(path,re_h,re_w):
     train_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs),train_label_list)
     test_images_tensor = generate_image_tensors(test_image_list, re_h, re_w)
     test_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs), test_label_list)
+    print train_images_tensor.shape
     np.save('train_images.npy',train_images_tensor)
     np.save('test_images.npy', test_images_tensor)
     np.save('train_labels.npy',train_label_tensor)
     np.save('test_labels.npy', test_label_tensor)
+    print "preprocing done! You should have 4 .npy files in the directory"
 
-
+# gen_and_serialize("./test",28,28)
