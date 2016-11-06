@@ -9,6 +9,7 @@ from random import shuffle
 def get_sub_dirs(path):
     return glob.glob(path + "/*/")
 
+
 # function to get all images from all sun directories
 def get_all_images_lables_list(sub_dirs):
     all_images_list=[]
@@ -49,6 +50,10 @@ def split_data(image_list,label_list):
 # Function to read and normlize images
 def read_image_data(img_path,re_h,re_w):
     tensor = np.ndarray(shape=(re_h, re_w), dtype=np.float32)
+    # try:
+    # except Exception:
+    #     print "exception"
+    #     pass
     im = ndimage.imread(img_path, flatten=True).astype(float)
     im = misc.imresize(im, (re_h, re_w))
     image_data = (im - 255.0 / 2) / 255.0
@@ -86,11 +91,10 @@ def gen_and_serialize(path,re_h,re_w):
     train_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs),train_label_list)
     test_images_tensor = generate_image_tensors(test_image_list, re_h, re_w)
     test_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs), test_label_list)
-    print train_images_tensor.shape
     np.save('train_images.npy',train_images_tensor)
     np.save('test_images.npy', test_images_tensor)
     np.save('train_labels.npy',train_label_tensor)
     np.save('test_labels.npy', test_label_tensor)
     print "preprocing done! You should have 4 .npy files in the directory"
 
-# gen_and_serialize("./test",28,28)
+# gen_and_serialize("./notMNIST_small",28,28)
