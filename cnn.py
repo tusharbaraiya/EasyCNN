@@ -5,15 +5,42 @@ import numpy as np
 learning_rate = 0.001
 training_epoches = 20
 batch_size = 100
-display_step = 100
 
 
 image_h = 28
 image_w = 28
 input_channels = 1
-n_input = image_w*image_h*input_channels
 n_classes = 10
 dropout = 0.75
+
+
+train_dataset = None
+test_dataset = None
+train_labels = None
+test_labels = None
+train_size = None
+
+
+def init_params(image_height=28,image_width=28,channels=1,dropout_val=0.75,
+                learning_rate_val = 0.001,training_epoches_count = 20,batch_size_count = 100):
+    global image_h,image_w,input_channels,dropout,learning_rate,training_epoches,batch_size
+    image_h = image_height
+    image_w = image_width
+    input_channels=channels
+    dropout = dropout_val
+    learning_rate = learning_rate_val
+    training_epoches = training_epoches_count
+    batch_size = batch_size_count
+    print "Initialized Parameters!"
+
+
+def load_datasets():
+    global train_dataset,test_dataset,train_labels,test_labels,train_size
+    train_dataset = np.load("train_images.npy")
+    test_dataset = np.load("test_images.npy")
+    train_labels = np.load("train_labels.npy")
+    test_labels = np.load("test_labels.npy")
+    train_size = train_dataset.shape[0]
 
 
 weights = {
@@ -30,13 +57,6 @@ biases = {
     'bd1':tf.Variable(tf.random_normal([1024])),
     'out':tf.Variable(tf.random_normal([n_classes]))
 }
-
-
-train_dataset = np.load("train_images.npy")
-test_dataset = np.load("test_images.npy")
-train_labels = np.load("train_labels.npy")
-test_labels = np.load("test_labels.npy")
-train_size = train_dataset.shape[0]
 
 
 #placeholders
@@ -93,15 +113,21 @@ def start_training():
                                            y : batch_y,
                                            keep_prob: 1.
             })
-
             step += 1
             step %= roll_over
             if step==0:
                 epoch_count += 1
-                print "epoch : "+str(epoch_count)+", test accuracy :", \
-                        sess.run(accuracy,feed_dict={ x : test_dataset,
-                                           y : test_labels,
-                                           keep_prob: 1.
-            })
+                loss, acc = sess.run([cost, accuracy], feed_dict={x: batch_x,
+                                                                  y: batch_y,
+                                                                  keep_prob: 1.})
+                print "Finished Epoch : "+str(epoch_count)+\
+                      ", Minibatch Loss = " + str(loss)+\
+                      ", Minibatch accuracy = " + str(acc)
+
+        print ", test accuracy :", \
+            sess.run(accuracy, feed_dict={x: test_dataset,
+                                          y: test_labels,
+                                          keep_prob: 1.
+                                          })
 
 start_training()

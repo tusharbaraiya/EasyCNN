@@ -50,10 +50,6 @@ def split_data(image_list,label_list):
 # Function to read and normlize images
 def read_image_data(img_path,re_h,re_w):
     tensor = np.ndarray(shape=(re_h, re_w), dtype=np.float32)
-    # try:
-    # except Exception:
-    #     print "exception"
-    #     pass
     im = ndimage.imread(img_path, flatten=True).astype(float)
     im = misc.imresize(im, (re_h, re_w))
     image_data = (im - 255.0 / 2) / 255.0
