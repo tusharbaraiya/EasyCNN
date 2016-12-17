@@ -1,8 +1,10 @@
+import sys
 import glob
 import numpy as np
 from scipy import misc
 from scipy import ndimage
 from random import shuffle
+
 
 
 # function to generate list of subdirectories
@@ -62,6 +64,8 @@ def generate_image_tensors(image_list,re_h,re_w):
     length = len(image_list)
     image_tensors = np.ndarray(shape=(length,re_h, re_w), dtype=np.float32)
     for i in range(length):
+        sys.stdout.write("\r%d%%" % ((i+1) * 100 / length))
+        sys.stdout.flush()
         image_tensors[i,:,:] = read_image_data(image_list[i],re_h,re_w)
     return image_tensors
 
@@ -83,14 +87,17 @@ def gen_and_serialize(path,re_h,re_w):
     all_image_list, all_label_list = get_all_images_lables_list(sub_dirs)
     shuf_image_list, shuf_label_list = random_shufle(all_image_list, all_label_list)
     train_image_list,train_label_list,test_image_list,test_label_list = split_data(shuf_image_list, shuf_label_list)
+    print "Reading and preprocessing training data..."
     train_images_tensor = generate_image_tensors(train_image_list,re_h,re_w)
     train_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs),train_label_list)
+    print "Reading and preprocessing Testing data..."
     test_images_tensor = generate_image_tensors(test_image_list, re_h, re_w)
     test_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs), test_label_list)
+    print "Writing data to files"
     np.save('train_images.npy',train_images_tensor)
     np.save('test_images.npy', test_images_tensor)
     np.save('train_labels.npy',train_label_tensor)
     np.save('test_labels.npy', test_label_tensor)
     print "preprocing done! You should have 4 .npy files in the directory"
 
-# gen_and_serialize("./notMNIST_small",28,28)
+gen_and_serialize("./notMNIST_small",28,28)
