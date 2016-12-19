@@ -133,13 +133,61 @@ def start_training():
                                           })
 
 
+def create_model(input,n):
+    in_channel = 1
+    out_feature = 32
+    batch_n = 100
+    n_class = 10
+    kernel = tf.Variable(tf.random_normal([5, 5, in_channel, out_feature]))
+    conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
+    biases = tf.Variable(tf.zeros([out_feature], dtype=tf.float32))
+    pre_activation = tf.nn.bias_add(conv, biases)
+    conv1 = tf.nn.relu(pre_activation)
+    pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
+                           padding='SAME')
+    norm = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75)
+
+    for i in range(n-1):
+        kernel = tf.Variable(tf.random_normal([5, 5, out_feature,out_feature+32]))
+        conv = tf.nn.conv2d(norm, kernel, [1, 1, 1, 1], padding='SAME')
+        biases = tf.Variable(tf.zeros([out_feature+32],dtype=tf.float32))
+        pre_activation = tf.nn.bias_add(conv, biases)
+        conv_n = tf.nn.relu(pre_activation)
+        pool_n = tf.nn.max_pool(conv_n, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],padding='SAME')
+        norm = tf.nn.lrn(pool_n, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75)
+        out_feature += 32
+
+    reduced_n = image_w / (2**n)
+    reshape_layer_num = (reduced_n**2)*out_feature
+    reshape_layer = tf.reshape(norm, [batch_n,-1])
+    fc1_weights = tf.Variable(tf.random_normal([reshape_layer_num,400]))
+    fc1_biases = tf.Variable(tf.constant_initializer([400],value=0.1))
+    fc1 = tf.nn.relu(tf.matmul(reshape_layer,fc1_weights) + fc1_biases)
+
+
+    fc2_weights = tf.Variable(tf.random_normal([400, 200]))
+    fc2_biases = tf.Variable(tf.constant_initializer([200],value=0.1))
+    fc2 = tf.nn.relu(tf.matmul(fc1, fc2_weights) + fc2_biases)
+
+    out_weights = tf.Variable(tf.random_normal([200,n_class]))
+    out_biases = tf.Variable(tf.constant_initializer([n_class],value=0.1))
+    softmax = tf.add(tf.matmul(fc2, out_weights), out_biases)
+
+    return softmax
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-data_path', '--data-path', type=str, required=True)
     parser.add_argument('-image_re_h', '--image-reh', type=int, required=True)
     parser.add_argument('-image_re_w', '--image-rew', type=int, required=True)
+    parser.add_argument('-learning_rate', '--learning-rate', type=float)
+    parser.add_argument('-dropout', '--dropout', type=float)
+    parser.add_argument('-epoches', '--epoches', type=int)
+    parser.add_argument('-mode', '--mode', type=str)
     args = parser.parse_args()
     pre.gen_and_serialize(args.data_path, args.image_reh,args.image_rew)
+
 
 
 
