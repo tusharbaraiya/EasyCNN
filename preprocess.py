@@ -90,14 +90,13 @@ def gen_and_serialize(path,re_h,re_w):
     print "Reading and preprocessing training data..."
     train_images_tensor = generate_image_tensors(train_image_list,re_h,re_w)
     train_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs),train_label_list)
-    print "Reading and preprocessing Testing data..."
+    print "\nReading and preprocessing Testing data..."
     test_images_tensor = generate_image_tensors(test_image_list, re_h, re_w)
     test_label_tensor = gen_one_hot_lable_tensors(len(sub_dirs), test_label_list)
-    print "Writing data to files"
+    print "\nWriting data to files"
     np.save('train_images.npy',train_images_tensor)
     np.save('test_images.npy', test_images_tensor)
     np.save('train_labels.npy',train_label_tensor)
     np.save('test_labels.npy', test_label_tensor)
     print "preprocing done! You should have 4 .npy files in the directory"
 
-gen_and_serialize("./notMNIST_small",28,28)

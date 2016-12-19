@@ -1,3 +1,5 @@
+import argparse
+import preprocess as pre
 import tensorflow as tf
 import numpy as np
 
@@ -130,4 +132,15 @@ def start_training():
                                           keep_prob: 1.
                                           })
 
-start_training()
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-data_path', '--data-path', type=str, required=True)
+    parser.add_argument('-image_re_h', '--image-reh', type=int, required=True)
+    parser.add_argument('-image_re_w', '--image-rew', type=int, required=True)
+    args = parser.parse_args()
+    pre.gen_and_serialize(args.data_path, args.image_reh,args.image_rew)
+
+
+
+
