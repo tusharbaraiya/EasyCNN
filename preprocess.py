@@ -6,6 +6,8 @@ from scipy import ndimage
 from random import shuffle
 
 
+n_class = -1
+
 # function to generate list of subdirectories
 def get_sub_dirs(path):
     return glob.glob(path + "/*/")
@@ -82,7 +84,9 @@ def gen_one_hot_lable_tensors(num_classes,label_list):
 
 # Function to generate all images and label tensors and serialize in .npy files
 def gen_and_serialize(path,re_h,re_w):
+    global n_class
     sub_dirs = get_sub_dirs(path)
+    n_class = len(sub_dirs)
     all_image_list, all_label_list = get_all_images_lables_list(sub_dirs)
     shuf_image_list, shuf_label_list = random_shufle(all_image_list, all_label_list)
     train_image_list,train_label_list,test_image_list,test_label_list = split_data(shuf_image_list, shuf_label_list)
@@ -99,3 +103,5 @@ def gen_and_serialize(path,re_h,re_w):
     np.save('test_labels.npy', test_label_tensor)
     print "preprocing done! You should have 4 .npy files in the directory"
 
+def get_class_count():
+    return n_class

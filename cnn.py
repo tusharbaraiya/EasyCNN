@@ -8,19 +8,10 @@ learning_rate = 0.001
 training_epoches = 20
 batch_size = 100
 
-
 image_h = 28
 image_w = 28
 input_channels = 1
 n_classes = 10
-dropout = 0.75
-
-
-train_dataset = None
-test_dataset = None
-train_labels = None
-test_labels = None
-train_size = None
 
 
 def init_params(image_height=28,image_width=28,channels=1,dropout_val=0.75,
@@ -136,7 +127,7 @@ def start_training():
 def create_model(input,n):
     in_channel = 1
     out_feature = 32
-    batch_n = 100
+    batch_n = batch_size
     n_class = 10
     kernel = tf.Variable(tf.random_normal([5, 5, in_channel, out_feature]))
     conv = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
@@ -177,18 +168,21 @@ def create_model(input,n):
 
 
 def main():
+    global image_h,image_w,learning_rate,training_epoches,batch_size
     parser = argparse.ArgumentParser()
     parser.add_argument('-data_path', '--data-path', type=str, required=True)
     parser.add_argument('-image_re_h', '--image-reh', type=int, required=True)
     parser.add_argument('-image_re_w', '--image-rew', type=int, required=True)
+    parser.add_argument('-batch_size', '--batch-size', type=int, required=True)
     parser.add_argument('-learning_rate', '--learning-rate', type=float)
-    parser.add_argument('-dropout', '--dropout', type=float)
     parser.add_argument('-epoches', '--epoches', type=int)
     parser.add_argument('-mode', '--mode', type=str)
     args = parser.parse_args()
     pre.gen_and_serialize(args.data_path, args.image_reh,args.image_rew)
-
-
-
+    batch_size = args.batch_size
+    image_h = args.image_reh
+    image_w = args.image_rew
+    learning_rate = args.learning_rate
+    training_epoches = args.epoches
 
 
