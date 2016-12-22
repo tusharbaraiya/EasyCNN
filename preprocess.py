@@ -103,5 +103,8 @@ def gen_and_serialize(path,re_h,re_w):
     np.save('test_labels.npy', test_label_tensor)
     print "preprocing done! You should have 4 .npy files in the directory"
 
-def get_class_count():
+def get_class_count(path):
+    global n_class
+    sub_dirs = get_sub_dirs(path)
+    n_class = len(sub_dirs)
     return n_class
